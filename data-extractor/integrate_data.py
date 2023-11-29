@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 from read_data import readCsv
+import time
+import json
+import requests
 
 imdbSchema = ['name','url','year','rating','votes','plot']
 salesSchema = ['Name','Year','Genre','NA_Sales','EU_Sales','JP_Sales','Other_Sales','Global_Sales']
@@ -34,6 +37,33 @@ def getDataImdb(names,years):
             subset_df = pd.concat([subset_df,record],axis=0)
     # print(subset_df)
     return subset_df
+
+
+'''
+#cheapstark = ['gameID','steamAppID','cheapest','cheapestDealID','external','internalName','thumb']
+pulled data from games and not List of deals which contains duplicates , handling them would be tough.
+need to check which API to request.
+need to understand which attributes would be relevant to our global schema.
+'''
+
+
+def getCheapStarkAPI():
+    df = getDataVgSales()
+    cheapstark =  pd.DataFrame()
+
+    for i in df['Name']:
+        #print(i)
+        res = requests.get('https://www.cheapshark.com/api/1.0/games?title='+i+'&exact=1')
+        data = res.text
+    
+        #print(data)
+    
+        df2 = pd.read_json(data)
+        cheapstark = pd.concat([cheapstark, df2], ignore_index=True)
+    
+        time.sleep(3)
+
+    return cheapstark
 
 '''
 Function integrates data from all 4 sources: vgsales, imdb, igdb and rates
