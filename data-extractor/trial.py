@@ -12,7 +12,7 @@ res = requests.get('https://www.cheapshark.com/api/1.0/deals?storeID=1&upperPric
 response = json.loads(res.text) 
 print(response)
 
-Fetch cheapstark API // match the name data with vg sales and fetch only relevant rows.
+Fetch cheapstark API // match the name data with vg sales and fetch all relevant rows.
 '''
 def getDataVgSales():
     vgsales_df = readCsv(path='../datasets/vgsales.csv',schema=salesSchema)
@@ -31,16 +31,29 @@ cheapstark =  pd.DataFrame()
 for i in df['Name']:
     cheapstark =  pd.DataFrame()
     print(i)
-    res = requests.get('https://www.cheapshark.com/api/1.0/games?title='+i)
+    res = requests.get('https://www.cheapshark.com/api/1.0/games?title='+i+'&exact=1')
     data = res.text
     
-    df2 = pd.read_json(data)
-    #cheapstark = pd.concat([cheapstark, df2], ignore_index=True)
+    print(data)
     
-    count = count+ 1
-    if count == 7:
-        break
+    df2 = pd.read_json(data)
+    cheapstark = pd.concat([cheapstark, df2], ignore_index=True)
+    
 
 
 #print("hello")
 print(cheapstark)
+
+
+'''
+Possible challenge faced : To ensure server performance, we rate limit API calls. 
+If you make too many requests in too short of time, 
+you will receive a 429 response code and be temporarily blocked.
+
+code running correctly .
+
+recieved error: {"error": "You are being temporarily blocked due to rate limiting. 
+Please reduce the number of API calls being made.}
+
+solution added : &exact=1 in API call
+'''
