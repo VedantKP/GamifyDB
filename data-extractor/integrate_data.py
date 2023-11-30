@@ -47,23 +47,7 @@ need to understand which attributes would be relevant to our global schema.
 '''
 
 
-def getCheapStarkAPI():
-    df = getDataVgSales()
-    cheapstark =  pd.DataFrame()
 
-    for i in df['Name']:
-        #print(i)
-        res = requests.get('https://www.cheapshark.com/api/1.0/games?title='+i+'&exact=1')
-        data = res.text
-    
-        #print(data)
-    
-        df2 = pd.read_json(data)
-        cheapstark = pd.concat([cheapstark, df2], ignore_index=True)
-    
-        time.sleep(3)
-
-    return cheapstark
 
 '''
 Function integrates data from all 4 sources: vgsales, imdb, igdb and rates
