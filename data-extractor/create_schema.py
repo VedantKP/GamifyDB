@@ -3,20 +3,55 @@ import psycopg2
 dbDetails = {
     'user': 'postgres',
     'host': 'localhost',
-    'password': '<password>',
+    'password': 'TomHanks24$',
     'port': 5432
 }
 
 tableQueries = [
-    '''create table imdb (
-        id serial primary key,
+    '''create table game (
+        id int primary key,
         name varchar(100) not null,
-        url varchar(60) not null,
         year int not null,
         rating decimal not null,
         votes int not null,
-        plot varchar(255) not null
-    );'''
+        url varchar(60) not null,
+        plot varchar(255),
+        genre varchar(15),
+        NA_Sales decimal not null,
+        EU_Sales decimal not null,
+        JP_Sales decimal not null,
+        Other_Sales decimal not null,
+        Global_Sales decimal not null
+    );''',
+    '''create table company (
+        id int primary key,
+        company_name varchar(100),
+        company_url varchar(131),
+        company_country varchar(56),
+        company_startyear int
+    );''',
+    '''create table game_developers (
+        game_id int,
+        company_id int,
+        primary key (game_id,company_id),
+        constraint fk_game foreign key(game_id) references game(id),
+        constraint fk_company foreign key(company_id) references company(id) 
+    );''',
+    '''
+    comment on column game.NA_Sales is 'North America sales in USD Millions';
+    ''',
+    '''
+    comment on column game.EU_Sales is 'EU sales in USD Millions';
+    ''',
+    '''
+    comment on column game.JP_Sales is 'Japan sales in USD Millions';
+    ''',
+    '''
+    comment on column game.Other_Sales is 'Rest of the world sales in USD Millions';
+    ''',
+    '''
+    comment on column game.Global_Sales is 'Worldwide sales in USD Millions';
+    '''
 ]
 
 '''
@@ -83,3 +118,5 @@ def createGlobalSchema(dbName:str='gamify_db',tableQueries=[None]):
     
     conn.close()
     print('Global Schema created/exists!')
+
+#createGlobalSchema(dbName='gamify_db',tableQueries=tableQueries)
