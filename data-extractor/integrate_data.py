@@ -1,9 +1,6 @@
 import pandas as pd
 import numpy as np
 from read_data import readCsv
-import time
-import json
-import requests
 
 imdbSchema = ['name','url','year','rating','votes','plot']
 salesSchema = ['Name','Year','Genre','NA_Sales','EU_Sales','JP_Sales','Other_Sales','Global_Sales']
@@ -15,7 +12,17 @@ Return the whole dataframe
 def getDataVgSales():
     vgsales_df = readCsv(path='../datasets/vgsales.csv',schema=salesSchema)
     vgsales_df = vgsales_df.fillna(0).astype({'Year':'int64'}) #fillna used to remove null values so that year can be cast to int64 for further comparison
-    return vgsales_df
+    agg_df = vgsales_df.groupby(['Name', 'Year', 'Genre']).agg({
+    'NA_Sales': 'sum',
+    'EU_Sales': 'sum',
+    'JP_Sales': 'sum',
+    'Other_Sales': 'sum',
+    'Global_Sales': 'sum'
+    }).reset_index()
+
+    agg_df.columns = ['Name', 'Year', 'Genre', 'NA_Sales', 'EU_Sales', 'JP_Sales', 'Other_Sales', 'Global_Sales']
+    # agg_df.to_csv(path_or_buf='../datasets/vgFilter.csv',sep=',',index=False,encoding='utf-8')
+    return agg_df
 
 '''
 Function performs the following tasks:
@@ -36,18 +43,8 @@ def getDataImdb(names,years):
         if not record.empty:
             subset_df = pd.concat([subset_df,record],axis=0)
     # print(subset_df)
+    #subset_df.to_csv(path_or_buf='../datasets/imdbExtract2.csv',sep=',',index=False,encoding='utf-8')
     return subset_df
-
-
-'''
-#cheapstark = ['gameID','steamAppID','cheapest','cheapestDealID','external','internalName','thumb']
-pulled data from games and not List of deals which contains duplicates , handling them would be tough.
-need to check which API to request.
-need to understand which attributes would be relevant to our global schema.
-'''
-
-
-
 
 '''
 Function integrates data from all 4 sources: vgsales, imdb, igdb and rates
@@ -62,7 +59,7 @@ def integrate():
 '''
 
 """returns matching dataframes from sales and imdb"""
-def getCorrectSalesAndIBDB():
+def getCorrectSalesAndImdb():
     vgsales_df = getDataVgSales()  # all data "sales"
     names, year = vgsales_df.Name, vgsales_df.Year
     imdb_df = getDataImdb(names, year)  # ibmd with intersection of sales and imdb data
@@ -105,8 +102,8 @@ def combine_to_global_table():
     ]
 
     # get both dataframes
-    vgsales_df, imdb_df = getCorrectSalesAndIBDB()
-
+    vgsales_df, imdb_df = getCorrectSalesAndImdb()
+    
     # apply automated mapping algorithm
     mapping_vgsales_to_global = map_to_global_schema(global_schema, vgsales_df)
     mapping_imdb_to_global = map_to_global_schema(global_schema, imdb_df)
@@ -120,7 +117,7 @@ def combine_to_global_table():
                          how='inner')  # Choose appropriate merge type
 
     global_df = global_df.reindex(columns=global_schema)
-
+    global_df.to_csv(path_or_buf='../datasets/globalDF2.csv',sep=',',index=False,encoding='utf-8')
     return global_df
 
 # Calling the function to get the combined global table
