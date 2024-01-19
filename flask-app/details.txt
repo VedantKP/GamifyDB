@@ -1,0 +1,14 @@
+Pages: 
+1. Index page where all the major operations (queries can be executed).
+2. Game page: This page will render all the details of a particular game. The name/id of the game will be taken from the main page (by using a link embedded into the name of the games which we get in the result set of the queries we run).
+3. Analytics page: D3.js / Observable Plot charts rendered for a few things about the gamify db database.
+4. About page: Shows details of the people who worked on the project 
+
+
+Input options:
+1. Name: Use like patterns (Input field)
+2. Year: <= and >= and == (Drop down)
+3. Rating: <= and >= and == (Drop down)
+4. Genre: Drop down or Tick box
+5. eu_sales, global_sales and na_sales (OR condition drop down for sales type), >= and <= ($M)  
+6. The user can select which columns he wants in the output by using tick boxes.
