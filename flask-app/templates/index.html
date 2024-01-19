@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>GamifyDB</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block body %}
+<h1>GamifyDB</h1>
+<div class="input" id="inputData">
+    <form action="/" method="post">
+        <label for="query">Enter query: </label>
+        <input type="text" name="query" id="query" placeholder="enter query here...">
+        <input type="submit" value="Run">
+    </form>
+</div>
+{% if data and data.columns and data.resultSet and data.ids %}
+<div class="output" id="outputData">
+    <table border="1">
+        <thead>
+            <tr>
+                {% for column in data.columns %}
+                {% if column != "id" %}
+                <th>{{ column }}</th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for j, row in enumerate(data.resultSet) %}
+            <tr>
+                {% for i, value in enumerate(row) %}
+                    {% if data.columns[i] == "name" %}
+                    <td><a href="/game/{{ data.ids[j] }}">{{ value }}</a></td>
+                    {% elif data.columns[i] != "id" %}
+                    <td>{{ value }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}    
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{% if data %}
+<title>{{ data.resultSet[0].name }}</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/game.css') }}">
+{% endif %}
+{% endblock %}
+
+{% block body %}
+{% if data and data.columns and data.resultSet %}
+<div class="game" id="game">
+<table border="1">
+    <tr>
+       <td>Game</td>
+       <td>{{ data.resultSet[0].name }}</td>
+    </tr>
+    <tr>
+        <td>Rating</td>
+        <td>{{ data.resultSet[0].rating }}</td>
+     </tr>
+     <tr>
+        <td>Votes</td>
+        <td>{{ data.resultSet[0].votes }}</td>
+     </tr>
+     <tr>
+        <td>URL</td>
+        <td><a href="{{ data.resultSet[0].url }}" target="_blank" rel="noopener noreferrer">IMDB</a></td>
+     </tr>
+     {% if data.resultSet[0].plot %}
+     <tr>
+        <td>Plot</td>
+        <td>{{ data.resultSet[0].plot }}</td>
+     </tr>
+     {% endif %}
+     {% if data.resultSet[0].genre %}
+     <tr>
+        <td>Genre</td>
+        <td>{{ data.resultSet[0].genre }}</td>
+     </tr>
+     {% endif %}
+     <tr>
+        <td>North America Sales</td>
+        <td>${{ data.resultSet[0].na_sales }}M</td>
+     </tr>
+     <tr>
+        <td>EU Sales</td>
+        <td>${{ data.resultSet[0].eu_sales }}M</td>
+     </tr>
+     <tr>
+        <td>JP Sales</td>
+        <td>${{ data.resultSet[0].jp_sales }}M</td>
+     </tr>
+     <tr>
+        <td>Other Sales</td>
+        <td>${{ data.resultSet[0].other_sales }}M</td>
+     </tr>
+     <tr>
+        <td>Global Sales</td>
+        <td>${{ data.resultSet[0].global_sales }}M</td>
+     </tr>
+</table>
+</div>
+{% endif %}
+
+{% if data.resultSet[0].company_name %}
+<div class="company" id="company">
+<h2>Developers</h2>
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Country</th>
+        <th>Establishment Year</th>
+        <th>URL</th>
+    </tr>
+    {% for game in data.resultSet %}
+    <tr>
+        <td>{{ game.company_name }}</td>
+        {% if game.company_country %}
+        <td>{{ game.company_country }}</td>
+        {% else %}
+        <td>--</td>
+        {% endif %}
+        {% if game.company_startyear %}
+        <td>{{ game.company_startyear }}</td>
+        {% else %}
+        <td>--</td>
+        {% endif %}
+        <td><a href="{{ game.company_url }}" target="_blank" rel="noopener noreferrer">Site</a></td>
+    </tr>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
