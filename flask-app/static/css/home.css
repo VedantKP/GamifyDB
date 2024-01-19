@@ -1,0 +1,76 @@
+body {
+    background-color: #f8f9fa; /* Light grey background color */
+    font-family: 'Arial', sans-serif;
+}
+
+h1 {
+    color: #28a745; /* Green text color */
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Center the input form */
+.input {
+    margin: 20px auto; /* Center horizontally with top margin */
+    max-width: 400px; /* Limit the maximum width */
+    padding: 20px;
+    background-color: #ffffff; /* White background color */
+    border: 1px solid #28a745; /* Green border color */
+    border-radius: 5px; /* Rounded corners */
+}
+
+form {
+    text-align: center;
+}
+
+label {
+    display: block; /* Display label as a block element */
+    margin-bottom: 10px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+
+input[type="submit"] {
+    background-color: #28a745; /* Green background color */
+    color: #ffffff; /* White text color */
+    padding: 10px;
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+}
+
+/* Output table styles */
+.output {
+    margin: 20px auto; /* Center horizontally with top margin */
+    padding: 20px;
+    background-color: #ffffff; /* White background color */
+    border: 1px solid #28a745; /* Green border color */
+    border-radius: 5px; /* Rounded corners */
+    max-width: 800px; /* Limit the maximum width */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th,
+td {
+    padding: 8px;
+    border: 1px solid #28a745; /* Green border color */
+}
+
+a {
+    color: #28a745; /* Green link color */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}

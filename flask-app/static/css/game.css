@@ -1,0 +1,43 @@
+/* styles.css */
+
+body {
+    background-color: #f8f9fa; /* Light grey background color */
+}
+
+/* Center the tables */
+.game,
+.company {
+    margin: 20px auto; /* Center horizontally with some top margin */
+    padding: 0 20px;
+}
+
+/* Style for the game table */
+.game table,
+.company table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.game table th,
+.game table td,
+.company table th,
+.company table td {
+    padding: 8px;
+    border: 1px solid #28a745; /* Green border color */
+}
+
+/* Header styles */
+.game h2,
+.company h2 {
+    color: #28a745; /* Green text color */
+}
+
+/* Anchor tag styles */
+a {
+    color: #28a745; /* Green link color */
+}
+
+a:hover {
+    color: #218838; /* Darker green color on hover */
+}
