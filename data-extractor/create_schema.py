@@ -3,7 +3,7 @@ import psycopg2
 dbDetails = {
     'user': 'postgres',
     'host': 'localhost',
-    'password': 'TomHanks24$',
+    'password': '<password>',
     'port': 5432
 }
 
@@ -11,11 +11,11 @@ tableQueries = [
     '''create table game (
         id int primary key,
         name varchar(100) not null,
-        year int not null,
         rating decimal not null,
         votes int not null,
+        year int not null,
         url varchar(60) not null,
-        plot varchar(255),
+        plot varchar(355),
         genre varchar(15),
         NA_Sales decimal not null,
         EU_Sales decimal not null,
@@ -25,8 +25,8 @@ tableQueries = [
     );''',
     '''create table company (
         id int primary key,
-        company_name varchar(100),
-        company_url varchar(131),
+        company_name varchar(100) not null,
+        company_url varchar(131) not null,
         company_country varchar(56),
         company_startyear int
     );''',
@@ -119,4 +119,4 @@ def createGlobalSchema(dbName:str='gamify_db',tableQueries=[None]):
     conn.close()
     print('Global Schema created/exists!')
 
-#createGlobalSchema(dbName='gamify_db',tableQueries=tableQueries)
+createGlobalSchema(dbName='gamify_db',tableQueries=tableQueries)
