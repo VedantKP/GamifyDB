@@ -8,10 +8,77 @@
 {% block body %}
 <h1>GamifyDB</h1>
 <div class="input" id="inputData">
-    <form action="/" method="post">
-        <label for="query">Enter query: </label>
-        <input type="text" name="query" id="query" placeholder="enter query here...">
-        <input type="submit" value="Run">
+    <form action="/" method="post" class="horizontal-form">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" name="name" id="name" placeholder="Use like patterns...">
+        </div>
+
+        <div class="form-group">
+            <label for="year_operator">Year:</label>
+            <select name="year_operator" id="year_operator">
+                <option value="eq">==</option>
+                <option value="lte"><=</option>
+                <option value="gte">>=</option>
+            </select>
+            <input type="number" name="year_value" placeholder="Enter year">
+        </div>
+
+        <div class="form-group">
+            <label for="rating_operator">Rating:</label>
+            <select name="rating_operator" id="rating_operator">
+                <option value="eq">==</option>
+                <option value="lte"><=</option>
+                <option value="gte">>=</option>
+            </select>
+            <input type="number" name="rating_value" placeholder="Enter rating">
+        </div>
+
+        <div class="form-group">
+            <label for="sales_operator">Sales:</label>
+            <select name="sales_type" id="sales_type">
+                <option value="eu_sales">EU Sales</option>
+                <option value="global_sales">Global Sales</option>
+                <option value="na_sales">NA Sales</option>
+            </select>
+            <select name="sales_operator" id="sales_operator">
+                <option value="eq">==</option>
+                <option value="lte"><=</option>
+                <option value="gte">>=</option>
+            </select>
+            <input type="number" name="sales_value" placeholder="Enter sales amount">
+        </div>
+
+        <div class="select-genre">
+            <label>Genre:</label>
+            <input type="checkbox" name="genre[]" value="action" id="genre_action">
+            <label for="genre_action">Action</label>
+            <input type="checkbox" name="genre[]" value="adventure" id="genre_adventure">
+            <label for="genre_adventure">Adventure</label>
+            <!-- Add more genre checkboxes as needed -->
+        </div>
+
+        <div class="select-columns">
+            <label>Select Columns:</label>
+            <input type="checkbox" name="selected_columns[]" value="name" id="col_name" checked>
+            <label for="col_name">Name</label>
+            <input type="checkbox" name="selected_columns[]" value="year" id="col_year" checked>
+            <label for="col_year">Year</label>
+            <input type="checkbox" name="selected_columns[]" value="rating" id="col_rating" checked>
+            <label for="col_rating">Rating</label>
+            <input type="checkbox" name="selected_columns[]" value="genre" id="col_genre" checked>
+            <label for="col_genre">Genre</label>
+            <input type="checkbox" name="selected_columns[]" value="eu_sales" id="col_eu_sales" checked>
+            <label for="col_eu_sales">EU Sales</label>
+            <input type="checkbox" name="selected_columns[]" value="global_sales" id="col_global_sales" checked>
+            <label for="col_global_sales">Global Sales</label>
+            <input type="checkbox" name="selected_columns[]" value="na_sales" id="col_na_sales" checked>
+            <label for="col_na_sales">NA Sales</label>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Run">
+        </div>
     </form>
 </div>
 {% if data and data.columns and data.resultSet and data.ids %}
@@ -37,7 +104,7 @@
                     {% endif %}
                 {% endfor %}
             </tr>
-            {% endfor %}    
+            {% endfor %}
         </tbody>
     </table>
 </div>

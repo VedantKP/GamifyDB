@@ -6,6 +6,7 @@ app = Flask(__name__)
 app.config['DATABASE_URI'] = 'postgresql://postgres:<password>@localhost:5432/gamify_db'
 conn = None
 
+
 class Game():
     def __init__(self, id, name, rating, votes, year, url, plot, genre, na_sales, eu_sales, jp_sales, other_sales, global_sales, company_name=None, company_url=None, company_country=None, company_startyear=None):
         self.id = id
@@ -25,12 +26,12 @@ class Game():
         self.company_url = company_url
         self.company_country = company_country
         self.company_startyear = company_startyear
-    
 
     def __str__(self) -> str:
         return f"id: {self.id}, name: {self.name}, rating: {self.rating}, votes: {self.votes}, year: {self.year}, url: {self.url}, plot: {self.plot}, "\
             f"genre: {self.genre}, na_sales: {self.na_sales}, eu_sales: {self.eu_sales}, jp_sales: {self.jp_sales}, other_sales: {self.other_sales}, global_sales: {self.global_sales}"\
             f"company_name: {self.company_name}, company_url: {self.company_url}, company_country: {self.company_country}, company_startyear: {self.company_startyear}"
+
 
 @app.route('/game/<int:id>')
 def display_game(id):
@@ -58,16 +59,61 @@ def display_game(id):
     # return "work in progress"
 
 
+def generate_sql_query(form_data):
+    base_query = "SELECT id, name, year, rating, genre, eu_sales, global_sales, na_sales FROM game"
+
+    conditions = []
+
+    if form_data.get('name'):
+        conditions.append(f"name LIKE '%{form_data['name']}%'")
+
+    if form_data.get('year_value') and form_data.get('year_operator'):
+        conditions.append(f"year {convert_operator(form_data['year_operator'])} {form_data['year_value']}")
+
+    if form_data.get('rating_value') and form_data.get('rating_operator'):
+        conditions.append(f"rating {convert_operator(form_data['rating_operator'])} {form_data['rating_value']}")
+
+    if form_data.get('sales_value') and form_data.get('sales_operator') and form_data.get('sales_type'):
+        conditions.append(f"{form_data['sales_type']} {convert_operator(form_data['sales_operator'])} {form_data['sales_value']}")
+
+    selected_genres = request.form.getlist('genre[]')
+    genre_conditions = " OR ".join([f"genre = '{genre}'" for genre in selected_genres])
+    if genre_conditions:
+        conditions.append(f"({genre_conditions})")
+
+    selected_columns = request.form.getlist('selected_columns[]')
+    if selected_columns and 'id' in selected_columns:
+        columns_str = ', '.join(selected_columns)
+        base_query = base_query.replace('id,', f'id, {columns_str},', 1)
+
+    if conditions:
+        conditions_str = ' AND '.join(conditions)
+        return f"{base_query} WHERE {conditions_str};"
+    else:
+        return base_query + ';'
+
+def convert_operator(operator):
+    operators_mapping = {
+        'eq': '=',
+        'lte': '<=',
+        'gte': '>='
+    }
+    return operators_mapping.get(operator, operator)
+
+
 @app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
-        query = request.form['query']
+        form_data = request.form.to_dict()
+        query = generate_sql_query(form_data)
+        print("query:")
+        print(query)
         if query is not None and query != "":
             db = get_db()
             cursor = db.cursor()
             idx = query.index(' ')
-            query = query[:idx] + ' id,' + query[idx:]
-            print('query is: {}'.format(query))
+            # query = query[:idx] + ' id,' + query[idx:]
+            # print('query is: {}'.format(query))
             cursor.execute(query=query)
             result = cursor.fetchall()
             # print('cursor.description: {}'.format(cursor.description))
@@ -75,7 +121,7 @@ def index():
             columns = [desc[0] for desc in cursor.description]
             cursor.close()
             data = {
-                "columns": columns, 
+                "columns": columns,
                 "resultSet": result,
                 "ids": list(map(lambda x: x[0], result))
             }
@@ -92,7 +138,7 @@ def index():
         if db is not None:
             print('db connection available in index()')
         return render_template('index.html')
-    
+
 def get_db():
     global conn
     if conn is None:
@@ -124,16 +170,19 @@ def custom_enumerate(iterable, start=0):
         yield index, value
         index += 1
 
+
 @app.context_processor
 def inject_enumerate():
     return dict(enumerate=custom_enumerate)
+
 
 def close_db():
     global conn
     if conn is not None:
         conn.close()
-        
+
+
 atexit.register(close_db)
 
 if __name__ == "__main__":
-    app.run(debug=True,port=5000)
+    app.run(debug=True, port=5000)
