@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 
 gameDfSchema = ['name','rating','votes','year','url','plot','Genre','NA_Sales','EU_Sales','JP_Sales','Other_Sales','Global_Sales']
 companyDfSchema = ['name','year','company_id','company_name','company_url','company_country','company_startyear']
-connString = 'postgresql://postgres:<password>@localhost:5432/gamify_db'
+connString = 'postgresql://postgres:123@localhost:5432/gamify_db'
 
 def readDf():
     gameDf = readCsv(path='../datasets/globalDF3.csv',schema=gameDfSchema)
@@ -26,7 +26,8 @@ def insertIntoGame(df:pd.DataFrame, conn):
             print('Data inserted into game table!')
             return True
     except Exception as exp:
-        print('Exception occured!: Data already exists in table')
+        print('Exception occured!: {}'.format(exp))
+        exit(0)
     return False
 
 def insertIntoCompany(companyDf: pd.DataFrame, conn):
@@ -40,7 +41,8 @@ def insertIntoCompany(companyDf: pd.DataFrame, conn):
             print('Data inserted into company table!')
             return True
     except Exception as exp:
-        print('Exception occured!: Data already exists in table')
+        print('Exception occured!: {}'.format(exp))
+        exit(0)
     return False
 
 def insertIntoGameDevelopers(game_df: pd.DataFrame, company_df: pd.DataFrame, conn):
@@ -68,8 +70,8 @@ def insertIntoGameDevelopers(game_df: pd.DataFrame, company_df: pd.DataFrame, co
             print('Data inserted into game developers table!')
             return True
     except Exception as exp:
-        print('Exception occured!: Data already exists in table')
-    
+        print('Exception occured!: {}'.format(exp))
+        exit(0)
     return False
 
 def createConnection():
