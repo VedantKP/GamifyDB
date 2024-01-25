@@ -6,7 +6,15 @@
 {% endblock %}
 
 {% block body %}
+
+<body>
+    <p><a href="{{ url_for('show_visuals') }}"><button class="black">Visuals</button></a></p>
+</body>
+
 <h1>GamifyDB</h1>
+
+
+
 <div class="input" id="inputData">
     <form action="/" method="post">
         <label for="query">Enter query: </label>
@@ -41,5 +49,8 @@
         </tbody>
     </table>
 </div>
+
+
+
 {% endif %}
 {% endblock %}

@@ -3,7 +3,7 @@ import psycopg2
 import atexit
 
 app = Flask(__name__)
-app.config['DATABASE_URI'] = 'postgresql://postgres:<password>@localhost:5432/gamify_db'
+app.config['DATABASE_URI'] = 'postgresql://postgres:123@localhost:5432/gamify_db'
 conn = None
 
 class Game():
@@ -93,6 +93,11 @@ def index():
             print('db connection available in index()')
         return render_template('index.html')
     
+@app.route('/visuals')
+def show_visuals():
+    return render_template('tableau.html')
+
+
 def get_db():
     global conn
     if conn is None:
