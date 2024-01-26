@@ -2,7 +2,11 @@
 import pandas as pd
 from sqlalchemy import create_engine
 
+<<<<<<< HEAD
 db_url = 'postgresql://postgres:123@localhost:5432/gamify_db'
+=======
+db_url = 'postgresql://postgres:<password>@localhost:5432/gamify_db'
+>>>>>>> b4d21b81fd7011ea1655649f3ebf36caf0eeb8d0
 
 if __name__ == "__main__":
     engine = create_engine(db_url)

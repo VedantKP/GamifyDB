@@ -3,7 +3,11 @@ import psycopg2
 dbDetails = {
     'user': 'postgres',
     'host': 'localhost',
+<<<<<<< HEAD
     'password': '123',
+=======
+    'password': '<password>',
+>>>>>>> b4d21b81fd7011ea1655649f3ebf36caf0eeb8d0
     'port': 5432
 }
 
@@ -11,9 +15,9 @@ tableQueries = [
     '''create table game (
         id int primary key,
         name varchar(100) not null,
-        year int not null,
         rating decimal not null,
         votes int not null,
+        year int not null,
         url varchar(60) not null,
         plot varchar(355),
         genre varchar(15),
@@ -25,8 +29,8 @@ tableQueries = [
     );''',
     '''create table company (
         id int primary key,
-        company_name varchar(100),
-        company_url varchar(131),
+        company_name varchar(100) not null,
+        company_url varchar(131) not null,
         company_country varchar(56),
         company_startyear int
     );''',
