@@ -3,11 +3,9 @@ import psycopg2
 import atexit
 
 app = Flask(__name__)
-<<<<<<< HEAD
+
 app.config['DATABASE_URI'] = 'postgresql://postgres:123@localhost:5432/gamify_db'
-=======
-app.config['DATABASE_URI'] = 'postgresql://postgres:TomHanks24$@localhost:5432/gamify_db'
->>>>>>> b4d21b81fd7011ea1655649f3ebf36caf0eeb8d0
+
 conn = None
 
 class Game():
@@ -136,10 +134,13 @@ def index():
             print('db connection available in index()')
         return render_template('index.html')
     
-@app.route('/visuals')
+@app.route('/visuals1')
 def show_visuals():
     return render_template('tableau.html')
 
+@app.route('/visuals2')
+def show_visuals2():
+    return render_template('tableau2.html')
 
 def get_db():
     global conn
