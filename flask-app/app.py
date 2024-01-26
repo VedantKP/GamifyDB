@@ -3,7 +3,7 @@ import psycopg2
 import atexit
 
 app = Flask(__name__)
-app.config['DATABASE_URI'] = 'postgresql://postgres:<password>@localhost:5432/gamify_db'
+app.config['DATABASE_URI'] = 'postgresql://postgres:TomHanks24$@localhost:5432/gamify_db'
 conn = None
 
 class Game():
@@ -61,8 +61,45 @@ def display_game(id):
 @app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
-        query = request.form['query']
-        if query is not None and query != "":
+        # query = request.form['query']
+        name = request.form.get('name', None)
+        year = request.form.get('year', None)
+        comparisonYear = request.form.get('comparisonYear', None)
+        rating = request.form.get('rating', None)
+        comparisonRating = request.form.get('comparisonRating', None)
+        genreNames = ['genreAdventure','genrePuzzle','genreStrategy','genreRole-Playing','genreSimulation','genreMisc',
+                      'genreFighting','genreSports','genreRacing','genreAction','genreShooter','genrePlatform']
+        genres = [genre.replace('genre','') for genre in genreNames if request.form.get(genre, None) is not None]        
+       
+        query = 'select name, year, genre, rating, votes from game where '
+        andFlag = False
+
+        if name:
+            query += "name like '%{}%'".format(name)
+            andFlag = True
+        if year: 
+            if andFlag: 
+                query += ' and year {} {}'.format(comparisonYear, year)
+            else:
+                query += 'year {} {}'.format(comparisonYear, year)
+                andFlag = True
+        if rating:
+            if andFlag:
+                query += ' and rating {} {}'.format(comparisonRating, rating)
+            else:
+                query += 'rating {} {}'.format(comparisonRating, rating)
+                andFlag = True
+        if genres:
+            if andFlag:
+                query += ' and genre in {}'.format(tuple(genres)) if len(genres) > 1 else " and genre = '{}'".format(genres[0])
+            else:
+                query += 'genre in {}'.format(tuple(genres)) if len(genres) > 1 else "genre = '{}'".format(genres[0])
+                andFlag = True
+        
+        query += ';'
+        print('query = "{}"'.format(query))
+
+        if query is not None and query != "" and andFlag:
             db = get_db()
             cursor = db.cursor()
             idx = query.index(' ')
@@ -87,6 +124,8 @@ def index():
             # print('ids type = {}'.format(type(ids)))
             print('data being sent is:\n{}'.format(data))
             return render_template("index.html", data=data)
+        else:
+            return render_template  ("index.html")
     else:
         db = get_db()
         if db is not None:
