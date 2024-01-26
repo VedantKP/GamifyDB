@@ -1,22 +1,146 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 
 {% block head %}
 <title>GamifyDB</title>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}">
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+<script src="../static/js/index.js" defer></script>
+<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js" defer></script>
 {% endblock %}
 
 {% block body %}
 <h1>GamifyDB</h1>
 <div class="input" id="inputData">
     <form action="/" method="post">
-        <label for="query">Enter query: </label>
-        <input type="text" name="query" id="query" placeholder="enter query here...">
-        <input type="submit" value="Run">
+        <table>
+            <!-- Query -->
+            <!-- <tr>
+                <td><label for="query">Query:</label></td>
+                <td>=</td>
+                <td><input type="text" name="query" id="query" placeholder="enter query here..."></td>
+            </tr> -->
+
+            <!-- Name -->
+            <tr>
+                <td><label for="name">Name</label></td>
+                <td>=</td>
+                <td><input type="text" name="name" id="name" placeholder="Name of the game..."></td>
+            </tr>
+
+            <!-- Year -->
+            <tr>
+                <td><label for="comparisonYear">Year</label></td>
+                <td>
+                    <select name="comparisonYear" id="comparisonYear">
+                        <option value="&lt;">&lt;</option>
+                        <option value="&lt;=">&leq;</option>
+                        <option value="&gt;">&gt;</option>
+                        <option value="&gt;=">&geq;</option>
+                        <option value="&equals;">&equals;</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="year" id="year" max="2016" min="1980" style="width: 50px;">
+                </td>
+            </tr>
+
+            <!-- Rating -->
+            <tr>
+                <td><label for="comparisonRating">Rating</label></td>
+                <td>
+                    <select name="comparisonRating" id="comparisonRating">
+                        <option value="&lt;">&lt;</option>
+                        <option value="&leq;">&leq;</option>
+                        <option value="&gt;">&gt;</option>
+                        <option value="&geq;">&geq;</option>
+                        <option value="&equals;">&equals;</option>
+                    </select>
+                </td>
+                <td>   
+                    <input type="number" name="rating" id="rating" step="0.01" max="10" min="0" style="width: 50px;">
+                </td>
+            </tr>
+
+            <!-- Genre -->
+            <tr>
+                <td><label>Genre</label></td>
+                <td>=</td>
+                <td class="genre-checkboxes">
+                    <div class="column">
+                        <div>
+                            <input type="checkbox" id="genreAdventure" name="genreAdventure" value="Adventure">
+                            <label for="genreAdventure">Adventure</label>
+                        </div>                        
+                        
+                        <div>
+                            <input type="checkbox" id="genrePuzzle" name="genrePuzzle" value="Puzzle">
+                            <label for="genrePuzzle">Puzzle</label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="genreStrategy" name="genreStrategy" value="Strategy">
+                            <label for="genreStrategy">Strategy</label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="genreRole-Playing" name="genreRole-Playing" value="Role-Playing">
+                            <label for="genreRole-Playing">Role-Playing</label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="genreSimulation" name="genreSimulation" value="Simulation">
+                            <label for="genreSimulation">Simulation</label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="genreMisc" name="genreMisc" value="Misc">
+                            <label for="genreMisc">Misc</label>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <div>
+                            <input type="checkbox" id="genreFighting" name="genreFighting" value="Fighting">
+                            <label for="genreFighting">Fighting</label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="genreSports" name="genreSports" value="Sports">
+                            <label for="genreSports">Sports</label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="genreRacing" name="genreRacing" value="Racing">
+                            <label for="genreRacing">Racing</label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="genreAction" name="genreAction" value="Action">
+                            <label for="genreAction">Action</label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="genreShooter" name="genreShooter" value="Shooter">
+                            <label for="genreShooter">Shooter</label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="genrePlatform" name="genrePlatform" value="Platform">
+                            <label for="genrePlatform">Platform</label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <!-- <div class="button-container"> -->
+            <input type="submit" value="Run" id="runButton" disabled>
+        <!-- </div> -->
     </form>
 </div>
+
 {% if data and data.columns and data.resultSet and data.ids %}
 <div class="output" id="outputData">
-    <table border="1">
+    <table border="1" class="sortable">
         <thead>
             <tr>
                 {% for column in data.columns %}
