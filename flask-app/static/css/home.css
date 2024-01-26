@@ -12,11 +12,12 @@ h1 {
 /* Center the input form */
 .input {
     margin: 20px auto; /* Center horizontally with top margin */
-    max-width: 400px; /* Limit the maximum width */
-    padding: 20px;
+    max-width: 540px; /* Limit the maximum width */
+    padding: 20px 40px;
     background-color: #ffffff; /* White background color */
     border: 1px solid #28a745; /* Green border color */
     border-radius: 5px; /* Rounded corners */
+    position: relative;
 }
 
 form {
@@ -36,32 +37,40 @@ input[type="text"] {
 }
 
 input[type="submit"] {
-    background-color: #28a745; /* Green background color */
+    background-color: #6e7d71; /* Green background color */
     color: #ffffff; /* White text color */
+    padding-top: 10px;
     padding: 10px;
     border: none;
     border-radius: 5px; /* Rounded corners */
     cursor: pointer;
 }
 
+.button-container {
+    position: absolute;
+    bottom: -10px; /* Adjust the value as needed to position the button below the table */
+    right: 0;
+    width: 100%;
+}
+
 /* Output table styles */
 .output {
     margin: 20px auto; /* Center horizontally with top margin */
-    padding: 20px;
+    padding: 20px 40px;
     background-color: #ffffff; /* White background color */
     border: 1px solid #28a745; /* Green border color */
     border-radius: 5px; /* Rounded corners */
     max-width: 800px; /* Limit the maximum width */
 }
 
-table {
+.output table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
 }
 
-th,
-td {
+.output table th,
+.output table td {
     padding: 8px;
     border: 1px solid #28a745; /* Green border color */
 }
@@ -73,4 +82,77 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+}
+
+/* Style for circular selects */
+select {
+    border-radius: 50%;
+}
+
+/* Remove borders from the table */
+.input table {
+    border: none; /* Remove borders from the table */
+    border-collapse: collapse;
+    width: 100%; /* Ensure the table takes up the full width of its container */
+}
+
+/* Ensure elements are perfectly aligned */
+.input table td {
+    vertical-align: middle;
+    padding: 2px; /* Add padding for better spacing */
+    border: 1px solid #28a745;
+}
+/* 
+.genre-checkboxes div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; 
+} */
+
+.genre-checkboxes {
+    display: flex;
+    /* justify-content: space-between; */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+}
+
+.column {
+    flex: 1;
+}
+
+.column div {
+    /* box-sizing: border-box; Include padding and border in the width */
+    /* margin-bottom: 5px; Add some spacing between each checkbox and label */
+
+    width: 70%; /* Adjust the width as needed */
+    box-sizing: border-box; /* Include padding and border in the width */
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; /* Add some spacing between each checkbox and label */
+}
+
+.genre-checkboxes input[type="checkbox"] {
+    margin-right: 5px; /* Add some spacing between checkbox and label */
+}
+
+#runButton {
+    position: relative;
+    bottom: 0px;
+    right: 0px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+#runButton:enabled {
+    background-color: #28a745; /* Change the background color when enabled */
+    color: #fff; /* Change the text color when enabled */
+    cursor: pointer; /* Change the cursor to a pointer when enabled */
 }
