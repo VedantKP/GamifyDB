@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from read_data import readCsv
 
 imdbSchema = ['name','url','year','rating','votes','plot']
@@ -32,7 +31,7 @@ def checkDuplicates(df: pd.DataFrame, datasetName: str) -> bool:
         df['Key'] = df.apply(create_key_imdb, axis=1)
     # 2. Sort elements based on key
     df.sort_values(by='Key', inplace=True)
-    df.to_csv(path_or_buf='../datasets/sortedKey{}.csv'.format(datasetName),sep=',',encoding='utf-8',index=False)
+    # df.to_csv(path_or_buf='../datasets/sortedKey{}.csv'.format(datasetName),sep=',',encoding='utf-8',index=False)
     # 3. Run a window to detect duplicates
     windowSize = 3
     totalRows = len(df)
@@ -41,7 +40,15 @@ def checkDuplicates(df: pd.DataFrame, datasetName: str) -> bool:
         keyCounts = windowData['Key'].value_counts() #extract unique key values
         sameKeyCount = keyCounts[keyCounts > 1].sum() #find the total number of rows involved in the duplication, by counting the number of keys that appear more than once and summing each such key count to get total duplicate rows
         if sameKeyCount >= 2: #if there are at least two rows with the same key, duplicate detected
-            duplicates = True
+            for value in keyCounts[keyCounts > 1].index:
+                probableMatchingData = windowData[windowData['Key'] == value]
+                # compare Name, Year and Genre in the sales data OR name and year in IMDB data to check if duplicates exist for the same key
+                if (datasetName.lower() == 'vgsales' and probableMatchingData['Name'].nunique() == 1 and probableMatchingData['Year'].nunique() == 1 and probableMatchingData['Genre'].nunique() == 1) or (datasetName.lower() == 'imdb' and probableMatchingData['name'].nunique() == 1 and probableMatchingData['year'].nunique() == 1):
+                    print('Duplicate found!')
+                    print(probableMatchingData)        
+                    duplicates = True
+                    return duplicates
+    
     print('duplicates found for {}!'.format(datasetName)) if duplicates else print('no duplicates for {}'.format(datasetName))
     return duplicates
 
@@ -52,6 +59,11 @@ Return the whole dataframe
 def getDataVgSales():
     vgsales_df = readCsv(path='../datasets/vgsales.csv',schema=salesSchema)
     vgsales_df = vgsales_df.fillna(0).astype({'Year':'int64'}) #fillna used to remove null values so that year can be cast to int64 for further comparison
+    colsToRound = ['NA_Sales','EU_Sales','JP_Sales','Other_Sales','Global_Sales']
+    for col in colsToRound:
+        print('rounding of col: {}'.format(col))
+        vgsales_df[col] = vgsales_df[col].round(2)    
+    
     duplicates = checkDuplicates(vgsales_df.copy(deep=True),'vgsales')
     if duplicates:
         agg_df = vgsales_df.groupby(['Name', 'Year', 'Genre']).agg({
@@ -63,6 +75,9 @@ def getDataVgSales():
         }).reset_index()
 
         agg_df.columns = ['Name', 'Year', 'Genre', 'NA_Sales', 'EU_Sales', 'JP_Sales', 'Other_Sales', 'Global_Sales']
+        for col in colsToRound:
+            print('rounding of col after agg: {}'.format(col))
+            agg_df[col] = agg_df[col].round(2)
         # agg_df.to_csv(path_or_buf='../datasets/vgFilter.csv',sep=',',index=False,encoding='utf-8')
         return agg_df
     else:
@@ -78,7 +93,7 @@ def getDataImdb(names,years):
     imdb_df = imdb_df.fillna(0).astype({'year':'int64','name':'string'})
     duplicates = checkDuplicates(imdb_df.copy(deep=True),'imdb')
     if duplicates:
-        imdb_df = imdb_df.drop_duplicates('name') #Removes 1089 duplicate records
+        imdb_df = imdb_df.drop_duplicates('name')
         
     subset_df = pd.DataFrame(columns=imdbSchema)
     subset_df = subset_df.astype({'year':'int64','name':'string','rating':'float64'}) #Creates a blank dataframe with same schema as imdb
@@ -91,17 +106,6 @@ def getDataImdb(names,years):
     #subset_df.to_csv(path_or_buf='../datasets/imdbExtract2.csv',sep=',',index=False,encoding='utf-8')
     return subset_df
 
-'''
-Function integrates data from all 4 sources: vgsales, imdb, igdb and rates
-1. extract names from vgsales and save as a pandas series
-2. extract records for the same names from imdb
-3. extract records for the same names from igdb's json data
-4. extract records for the same names from rates' json data
-def integrate():
-    vgsales_df = getDataVgSales()
-    names, year = vgsales_df.Name, vgsales_df.Year
-    imdb_df = getDataImdb(names,year) #Extract imdb data with matching rows from sales data.
-'''
 
 """returns matching dataframes from sales and imdb"""
 def getCorrectSalesAndImdb():
@@ -162,9 +166,8 @@ def combine_to_global_table():
                          how='inner')  # Choose appropriate merge type
 
     global_df = global_df.reindex(columns=global_schema)
-    global_df.to_csv(path_or_buf='../datasets/globalDF2.csv',sep=',',index=False,encoding='utf-8')
+    global_df.to_csv(path_or_buf='../datasets/globalDF.csv',sep=',',index=False,encoding='utf-8')
     return global_df
     
 # Calling the function to get the combined global table
 combined_global_table = combine_to_global_table()
-print(combined_global_table)
