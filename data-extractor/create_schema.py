@@ -3,11 +3,7 @@ import psycopg2
 dbDetails = {
     'user': 'postgres',
     'host': 'localhost',
-<<<<<<< HEAD
-    'password': '123',
-=======
     'password': '<password>',
->>>>>>> b4d21b81fd7011ea1655649f3ebf36caf0eeb8d0
     'port': 5432
 }
 
