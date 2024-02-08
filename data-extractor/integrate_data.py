@@ -61,7 +61,6 @@ def getDataVgSales():
     vgsales_df = vgsales_df.fillna(0).astype({'Year':'int64'}) #fillna used to remove null values so that year can be cast to int64 for further comparison
     colsToRound = ['NA_Sales','EU_Sales','JP_Sales','Other_Sales','Global_Sales']
     for col in colsToRound:
-        print('rounding of col: {}'.format(col))
         vgsales_df[col] = vgsales_df[col].round(2)    
     
     duplicates = checkDuplicates(vgsales_df.copy(deep=True),'vgsales')
@@ -76,7 +75,6 @@ def getDataVgSales():
 
         agg_df.columns = ['Name', 'Year', 'Genre', 'NA_Sales', 'EU_Sales', 'JP_Sales', 'Other_Sales', 'Global_Sales']
         for col in colsToRound:
-            print('rounding of col after agg: {}'.format(col))
             agg_df[col] = agg_df[col].round(2)
         # agg_df.to_csv(path_or_buf='../datasets/vgFilter.csv',sep=',',index=False,encoding='utf-8')
         return agg_df
