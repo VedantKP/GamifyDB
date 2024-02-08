@@ -12,10 +12,14 @@ import pycountry
 from slugify import slugify
 from igdb.wrapper import IGDBWrapper
 
-requestCounter = 2395
+requestCounter = 400
 
+'''
+Function initiates a post request to fetch the data based on the endpoint name and the query provided to it as the input.
+Returns: Response JSON payload from the IGDB API endpoint
+'''
 def postRequest(endpoint: str, query: str) -> dict:
-    wrapper = IGDBWrapper(client_id='0w5wnaqt03sq4l157jtmv6sz4pib2t',auth_token='31idnk8djqqn1cm1wrqmeuy8v2dfm8')
+    wrapper = IGDBWrapper(client_id='0w5wnaqt03sq4l157jtmv6sz4pib2t',auth_token='0aei23phtvhqrru8sjjerdctksxopx')
     byte_array = wrapper.api_request(
         endpoint=endpoint,
         query=query)
@@ -25,6 +29,9 @@ def postRequest(endpoint: str, query: str) -> dict:
         jsonData = json.loads(byte_array_str)[0]
     return jsonData
 
+'''
+Function extracts the company data from the companyList given to it as the input.
+'''
 def getCompanyDataForGame(companiesList: list):
     global requestCounter
     company_df = pd.DataFrame({'company_id':pd.Series(dtype='int'),
@@ -57,9 +64,19 @@ def getCompanyDataForGame(companiesList: list):
             company_df = pd.concat([company_df,pd.DataFrame([[companyOverviewJson['company'],companyJson['name'],companyJson['url'],countryName,startYear]],columns=['company_id','company_name','company_url','company_country','company_startyear'])],axis=0)
     return company_df
     
+'''
+Function:
+1. Reads the globalData created from integration of sales and imdb data
+2. for each game in the dataframe:
+    a. Gets a list of companies for the game
+    b. If there are involved_companies, then it extracts company data for each company using getCompanyDataForGame function
+Note: The API has a timeout period after a certain number of requests in an hour/second. Hence, this code has been executed in batches
+as the IGDB API kept restricting API Calls. This code needs to be run only once during data extraction and not during project setup.
+The data extracted from this code was concatenated using concatenate_company_data.py to create the allCompanyData.csv file
+'''
 def pullIgdbData():
     global requestCounter
-    df = readCsv(path='../datasets/globalDF2.csv')
+    df = readCsv(path='../datasets/globalDF.csv')
     fileCounter = 1
     logFileName = '../datasets/igdbLogs.txt'
     sys.stdout = open(logFileName,'w')
@@ -70,7 +87,8 @@ def pullIgdbData():
                                            'company_url': pd.Series(dtype='str'),
                                            'company_country': pd.Series(dtype='str'),
                                            'company_startyear': pd.Series(dtype='int')})
-    for i in range(len(df)):
+    for i in range(2690,len(df)):
+        time.sleep(2)
         name = df.loc[i,'name']
         year = df.loc[i,'year']
         print('-------------------------------\nLooking for companies for game: {}, released in {}'.format(name,year))
@@ -81,10 +99,10 @@ def pullIgdbData():
                 print('Start querying from game name: {}'.format(name))
                 print('Start querying from index i = {}'.format(i))
                 print('Start executing queries from time: {} + 5 seconds'.format(datetime.now() + timedelta(hours=1)))
-                companyData_df.to_csv(path_or_buf='../datasets/subsetCompanyData_{}.csv'.format(fileCounter),sep=',',index=False,encoding='utf-8')
+                companyData_df.to_csv(path_or_buf='../datasets/subsetCompanyDataFrom2690_{}.csv'.format(fileCounter),sep=',',index=False,encoding='utf-8')
                 fileCounter = fileCounter + 1
                 time.sleep(600)
-                requestCounter = 2395
+                requestCounter = 400
             print('Companies found for => {}'.format(name))
             print('Company IDs are: {}'.format(jsonData['involved_companies']))
             game_df = getCompanyDataForGame(jsonData['involved_companies'])
@@ -92,6 +110,7 @@ def pullIgdbData():
             game_df.insert(1,"year",[year]*len(jsonData['involved_companies']))
             companyData_df = pd.concat([companyData_df,game_df],axis=0)
             print('request counter is = {}'.format(requestCounter))
+            
 
     companyData_df.to_csv(path_or_buf='../datasets/companyData.csv',sep=',',index=False,encoding='utf-8')
     return companyData_df
