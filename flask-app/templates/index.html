@@ -17,13 +17,6 @@
 <div class="input" id="inputData">
     <form action="/" method="post">
         <table>
-            <!-- Query -->
-            <!-- <tr>
-                <td><label for="query">Query:</label></td>
-                <td>=</td>
-                <td><input type="text" name="query" id="query" placeholder="enter query here..."></td>
-            </tr> -->
-
             <!-- Name -->
             <tr>
                 <td><label for="name">Name</label></td>
@@ -132,6 +125,33 @@
                             <input type="checkbox" id="genrePlatform" name="genrePlatform" value="Platform">
                             <label for="genrePlatform">Platform</label>
                         </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><label>Output Columns</label></td>
+                <td>=</td>
+                <td>
+                    <div class="select-columns">
+                        <!-- <label>Select Columns:</label> -->
+                        <input type="checkbox" name="selected_columns[]" value="name" id="col_name" checked>
+                        <label for="col_name">Name</label>
+                        <input type="checkbox" name="selected_columns[]" value="year" id="col_year" checked>
+                        <label for="col_year">Year</label>
+                        <input type="checkbox" name="selected_columns[]" value="rating" id="col_rating" checked>
+                        <label for="col_rating">Rating</label>
+                        <input type="checkbox" name="selected_columns[]" value="genre" id="col_genre" checked>
+                        <label for="col_genre">Genre</label>
+                        <input type="checkbox" name="selected_columns[]" value="votes" id="col_votes" checked>
+                        <label for="col_votes">Votes</label><br>
+                        <input type="checkbox" name="selected_columns[]" value="na_sales" id="col_na_sales" checked>
+                        <label for="col_na_sales">NA Sales</label>
+                        <input type="checkbox" name="selected_columns[]" value="eu_sales" id="col_eu_sales" checked>
+                        <label for="col_eu_sales">EU Sales</label>
+                        <input type="checkbox" name="selected_columns[]" value="jp_sales" id="col_jp_sales" checked>
+                        <label for="col_jp_sales">JP Sales</label><br>
+                        <input type="checkbox" name="selected_columns[]" value="global_sales" id="col_global_sales" checked>
+                        <label for="col_global_sales">Global Sales</label>
                     </div>
                 </td>
             </tr>
