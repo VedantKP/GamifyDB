@@ -9,9 +9,6 @@ h1 {
     margin-top: 20px;
 }
 
-
-
-
 /* Center the input form */
 .input {
     margin: 20px auto; /* Center horizontally with top margin */
@@ -158,4 +155,13 @@ select {
     background-color: #28a745; /* Change the background color when enabled */
     color: #fff; /* Change the text color when enabled */
     cursor: pointer; /* Change the cursor to a pointer when enabled */
+}
+
+.top-right-buttons{
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
