@@ -3,11 +3,12 @@ import psycopg2
 import atexit
 
 app = Flask(__name__)
-
-app.config['DATABASE_URI'] = 'postgresql://postgres:123@localhost:5432/gamify_db'
-
+app.config['DATABASE_URI'] = 'postgresql://postgres:<password>@localhost:5432/gamify_db'
 conn = None
 
+'''
+Python object representation of game data
+'''
 class Game():
     def __init__(self, id, name, rating, votes, year, url, plot, genre, na_sales, eu_sales, jp_sales, other_sales, global_sales, company_name=None, company_url=None, company_country=None, company_startyear=None):
         self.id = id
@@ -34,6 +35,114 @@ class Game():
             f"genre: {self.genre}, na_sales: {self.na_sales}, eu_sales: {self.eu_sales}, jp_sales: {self.jp_sales}, other_sales: {self.other_sales}, global_sales: {self.global_sales}"\
             f"company_name: {self.company_name}, company_url: {self.company_url}, company_country: {self.company_country}, company_startyear: {self.company_startyear}"
 
+
+'''
+Function creates and/or returns database connection.
+'''
+def get_db():
+    global conn
+    if conn is None:
+        print('***opening connection to db!***')
+        conn = psycopg2.connect(app.config['DATABASE_URI'])
+    return conn
+
+'''
+Function to establish database connection when application is first started.
+'''
+with app.app_context():
+    db = get_db()
+    if db is not None:
+        print('connected to db!')
+    else:
+        print('could not connect to db!')
+
+
+'''
+Enumerate function for iterating over an iterable with index and value.
+'''
+def custom_enumerate(iterable, start=0):
+    index = start
+    for value in iterable:
+        yield index, value
+        index += 1
+
+'''
+Function to inject custom_enumerate function to be used by the Jinja template in HTML.
+'''
+@app.context_processor
+def inject_enumerate():
+    return dict(enumerate=custom_enumerate)
+
+'''
+Function to close database connection
+'''
+def close_db():
+    global conn
+    if conn is not None:
+        conn.close()
+        
+atexit.register(close_db)
+
+'''
+Function returns value of operator key
+'''    
+def convert_operator(operator):
+    operators_mapping = {
+        'eq': '=',
+        'lte': '<=',
+        'gte': '>='
+    }
+    return operators_mapping.get(operator, operator)
+
+'''
+Function formulates and returns database query based on input provided by the user, accessed as form data.
+'''
+def generate_sql_query(request: Flask.request_class):
+    name = request.form.get('name', None)
+    year = request.form.get('year', None)
+    comparisonYear = request.form.get('comparisonYear', None)
+    rating = request.form.get('rating', None)
+    comparisonRating = request.form.get('comparisonRating', None)
+    genreNames = ['genreAdventure','genrePuzzle','genreStrategy','genreRole-Playing','genreSimulation','genreMisc',
+                  'genreFighting','genreSports','genreRacing','genreAction','genreShooter','genrePlatform']
+    genres = [genre.replace('genre','') for genre in genreNames if request.form.get(genre, None) is not None]
+    outputColumns = request.form.getlist('selected_columns[]')
+    print('selected_columns are: {}'.format(outputColumns))        
+    if not outputColumns:
+        return None, False
+    
+    query = 'select id, {} from game where '.format(', '.join(outputColumns))
+    andFlag = False
+
+    if name:
+        query += "name like '%{}%'".format(name)
+        andFlag = True
+    if year: 
+        if andFlag: 
+            query += ' and year {} {}'.format(comparisonYear, year)
+        else:
+            query += 'year {} {}'.format(comparisonYear, year)
+            andFlag = True
+    if rating:
+        if andFlag:
+            query += ' and rating {} {}'.format(comparisonRating, rating)
+        else:
+            query += 'rating {} {}'.format(comparisonRating, rating)
+            andFlag = True
+    if genres:
+        if andFlag:
+            query += ' and genre in {}'.format(tuple(genres)) if len(genres) > 1 else " and genre = '{}'".format(genres[0])
+        else:
+            query += 'genre in {}'.format(tuple(genres)) if len(genres) > 1 else "genre = '{}'".format(genres[0])
+            andFlag = True
+    
+    query += ';'
+    print('query = "{}"'.format(query))
+    return query, andFlag
+
+'''
+Endpoint returns all information about game with id = <int:id> provided during endpoint call. Data is rendered using game.html page 
+'''
 @app.route('/game/<int:id>')
 def display_game(id):
     db = get_db()
@@ -54,63 +163,23 @@ def display_game(id):
         "columns": columns,
         "resultSet": result
     }
-    # print('result after using Games objects: {}'.format([vars(x) for x in result]))
-    # print('columns are: {}'.format(columns))
     return render_template('game.html', data=data)
-    # return "work in progress"
 
 
+'''
+Endpoint processes:
+1. GET Request: Base template with input table provided to the user.
+2. POST Request: Executes query and returns the resultset to the same home page.
+'''
 @app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
-        # query = request.form['query']
-        name = request.form.get('name', None)
-        year = request.form.get('year', None)
-        comparisonYear = request.form.get('comparisonYear', None)
-        rating = request.form.get('rating', None)
-        comparisonRating = request.form.get('comparisonRating', None)
-        genreNames = ['genreAdventure','genrePuzzle','genreStrategy','genreRole-Playing','genreSimulation','genreMisc',
-                      'genreFighting','genreSports','genreRacing','genreAction','genreShooter','genrePlatform']
-        genres = [genre.replace('genre','') for genre in genreNames if request.form.get(genre, None) is not None]        
-       
-        query = 'select name, year, genre, rating, votes from game where '
-        andFlag = False
-
-        if name:
-            query += "name like '%{}%'".format(name)
-            andFlag = True
-        if year: 
-            if andFlag: 
-                query += ' and year {} {}'.format(comparisonYear, year)
-            else:
-                query += 'year {} {}'.format(comparisonYear, year)
-                andFlag = True
-        if rating:
-            if andFlag:
-                query += ' and rating {} {}'.format(comparisonRating, rating)
-            else:
-                query += 'rating {} {}'.format(comparisonRating, rating)
-                andFlag = True
-        if genres:
-            if andFlag:
-                query += ' and genre in {}'.format(tuple(genres)) if len(genres) > 1 else " and genre = '{}'".format(genres[0])
-            else:
-                query += 'genre in {}'.format(tuple(genres)) if len(genres) > 1 else "genre = '{}'".format(genres[0])
-                andFlag = True
-        
-        query += ';'
-        print('query = "{}"'.format(query))
-
-        if query is not None and query != "" and andFlag:
+        query, flag = generate_sql_query(request)
+        if query is not None and query != "" and flag:
             db = get_db()
             cursor = db.cursor()
-            idx = query.index(' ')
-            query = query[:idx] + ' id,' + query[idx:]
-            print('query is: {}'.format(query))
             cursor.execute(query=query)
             result = cursor.fetchall()
-            # print('cursor.description: {}'.format(cursor.description))
-            # cursor.description = [desc for desc in cursor.description if desc[0] != 'id']
             columns = [desc[0] for desc in cursor.description]
             cursor.close()
             data = {
@@ -118,71 +187,30 @@ def index():
                 "resultSet": result,
                 "ids": list(map(lambda x: x[0], result))
             }
-            # print('column names are: {}'.format(columns))
-            # ids = list(map(lambda x: x[0], result))
-            print('data obtained for query: {} is\n {}'.format(query,result))
-            print('query result type: {}'.format(type(result)))
-            # print('ids = {}'.format(ids))
-            # print('ids type = {}'.format(type(ids)))
-            print('data being sent is:\n{}'.format(data))
             return render_template("index.html", data=data)
         else:
-            return render_template  ("index.html")
+            return render_template("index.html")
     else:
         db = get_db()
         if db is not None:
             print('db connection available in index()')
         return render_template('index.html')
-    
+
+
+'''
+Endpoint renders html page with Tableau visualization about top performing games.
+'''
 @app.route('/visuals1')
 def show_visuals():
     return render_template('tableau.html')
 
+'''
+Endpoint renders html page with Tableau visualization about the developers behind the games.
+'''
 @app.route('/visuals2')
 def show_visuals2():
     return render_template('tableau2.html')
 
-def get_db():
-    global conn
-    if conn is None:
-        print('***opening connection to db!***')
-        conn = psycopg2.connect(app.config['DATABASE_URI'])
-    return conn
-
-with app.app_context():
-    db = get_db()
-    if db is not None:
-        print('connected to db!')
-    else:
-        print('could not connect to db!')
-
-
-def custom_enumerate(iterable, start=0):
-    """
-    Enumerate function for iterating over an iterable with index and value.
-
-    Parameters:
-    - iterable: The iterable to enumerate.
-    - start: Optional. The starting index (default is 0).
-
-    Returns:
-    - An iterator that yields tuples containing index and value.
-    """
-    index = start
-    for value in iterable:
-        yield index, value
-        index += 1
-
-@app.context_processor
-def inject_enumerate():
-    return dict(enumerate=custom_enumerate)
-
-def close_db():
-    global conn
-    if conn is not None:
-        conn.close()
-        
-atexit.register(close_db)
 
 if __name__ == "__main__":
-    app.run(debug=True,port=5000)
+    app.run(debug=False,port=5000)
